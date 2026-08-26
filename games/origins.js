@@ -121,31 +121,68 @@ function originsPickDistractors(pool, excludeItem, byField, count) {
   return result;
 }
 
-function getOriginsQuestion(level) {
-  const tier = level <= 2 ? 1 : level <= 4 ? 2 : 3;
-  const pool = ORIGINS_DATA.filter(q => q.tier === tier);
-  const correct = pool[Math.floor(Math.random() * pool.length)];
-  const isForward = Math.random() < 0.5;
+let originsLastLevel = null;
+let originsUsedItems = [];
+let originsUsedTexts = [];
 
+function originsBuildQuestion(correct, isForward) {
   if (isForward) {
-    const distractors = originsPickDistractors(pool, correct, 'country', 3);
+    const distractors = originsPickDistractors(ORIGINS_DATA.filter(o => o.tier === correct.tier), correct, 'country', 3);
     const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
     return {
       question: `«${correct.thing}» қай елден шықты?`,
       options: options.map(o => o.country),
       correctIndex: options.findIndex(o => o === correct)
     };
-  } else {
-    // 'country' бойынша аластаймыз (сол елдің басқа заты емес) — әйтпесе
-    // екі опция да дұрыс жауап болып, сұрақ екіұдай болып кетер еді
-    const distractors = originsPickDistractors(pool, correct, 'country', 3);
-    const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
-    return {
-      question: `Мыналардың қайсысы ${correct.country} елінен шыққан?`,
-      options: options.map(o => o.thing),
-      correctIndex: options.findIndex(o => o === correct)
-    };
   }
+  // 'country' бойынша аластаймыз (сол елдің басқа заты емес) — әйтпесе
+  // екі опция да дұрыс жауап болып, сұрақ екіұдай болып кетер еді
+  const distractors = originsPickDistractors(ORIGINS_DATA.filter(o => o.tier === correct.tier), correct, 'country', 3);
+  const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
+  return {
+    question: `Мыналардың қайсысы ${correct.country} елінен шыққан?`,
+    options: options.map(o => o.thing),
+    correctIndex: options.findIndex(o => o === correct)
+  };
+}
+
+function getOriginsQuestion(level) {
+  if (level !== originsLastLevel) {
+    originsLastLevel = level;
+    originsUsedItems = [];
+    originsUsedTexts = [];
+  }
+  const tier = level <= 2 ? 1 : level <= 4 ? 2 : 3;
+  const pool = ORIGINS_DATA.filter(q => q.tier === tier);
+
+  // Бірнеше рет байқап көреміз: факт те, сұрақтың сыртқы мәтіні де осы
+  // деңгейде бұрын шықпаған болуы керек (кері бағытта бірнеше факттің
+  // елі бірдей болса, сұрақ мәтіні сырттай қайталанып көрінуі мүмкін еді)
+  let result = null;
+  for (let attempt = 0; attempt < 30; attempt++) {
+    let available = pool.filter(item => !originsUsedItems.includes(item));
+    if (available.length === 0) {
+      originsUsedItems = [];
+      available = pool;
+    }
+    const candidate = available[Math.floor(Math.random() * available.length)];
+    const isForward = Math.random() < 0.5;
+    const q = originsBuildQuestion(candidate, isForward);
+    if (!originsUsedTexts.includes(q.question)) {
+      originsUsedItems.push(candidate);
+      originsUsedTexts.push(q.question);
+      result = q;
+      break;
+    }
+  }
+  if (!result) {
+    // сирек жағдай: барлық комбинация таусылды — мәтін тарихын тазалап қайта бастаймыз
+    originsUsedTexts = [];
+    const candidate = pool[Math.floor(Math.random() * pool.length)];
+    result = originsBuildQuestion(candidate, Math.random() < 0.5);
+    originsUsedTexts.push(result.question);
+  }
+  return result;
 }
 
 window.OriginsGame = createQuizGame({

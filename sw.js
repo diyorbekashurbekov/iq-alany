@@ -1,7 +1,7 @@
 // Service worker — сайтты офлайн жұмыс істетеді және "қолданбадай" жылдам ашылуын қамтамасыз етеді.
 // Жаңа нұсқа шығарғанда CACHE_NAME мәнін өзгертіңіз (мыс. 'iqarena-v2') — ескі кэш автоматты тазаланады.
 
-const CACHE_NAME = 'iqarena-v9';
+const CACHE_NAME = 'iqarena-v10';
 const ASSETS = [
   './',
   './index.html',
