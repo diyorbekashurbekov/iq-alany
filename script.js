@@ -68,8 +68,8 @@ const GAMES = [
   {
     id: 'numbers',
     icon: '🔢',
-    title: 'Сандар логикасы',
-    desc: 'Заңдылықты тауып, келесі санды тап. Деңгей сайын қиындай береді.',
+    title: 'Логика жұмбақтары',
+    desc: 'Сандық тізбектер мен ойландыратын логика есептері. 4 деңгей қиындығы.',
     screen: 'screen-numbers',
     start: () => window.NumbersGame.start()
   },
@@ -123,7 +123,7 @@ const ACHIEVEMENTS = [
   { id: 'origins_master', icon: '🧭', title: 'Әлem білгірі', desc: '"Қайдан шықты?" ойынында барлық деңгейден өт', check: b => b.origins && b.origins.level >= 6 },
   { id: 'world_master', icon: '🌐', title: 'Энциклопедист', desc: '"Әлем білімі" ойынында барлық деңгейден өт', check: b => b.world && b.world.level >= 6 },
   { id: 'whack_master', icon: '🔨', title: 'Реакция королі', desc: 'Кроттар ойынында барлық деңгейден өт', check: b => b.whack && b.whack.level >= 5 },
-  { id: 'numbers_master', icon: '🔢', title: 'Логика данышпаны', desc: 'Сандар логикасында барлық деңгейден өт', check: b => b.numbers && b.numbers.level >= 8 },
+  { id: 'numbers_master', icon: '🔢', title: 'Логика данышпаны', desc: '"Логика жұмбақтары" ойынында барлық деңгейден өт', check: b => b.numbers && b.numbers.level >= 8 },
   { id: 'all_star', icon: '👑', title: 'IQ чемпионы', desc: 'Барлық ойындарда кемінде 1 деңгей жеңу', check: b => GAMES.every(g => b[g.id] && b[g.id].level >= 1) },
 ];
 
