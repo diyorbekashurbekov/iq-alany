@@ -1,13 +1,15 @@
 // Service worker — сайтты офлайн жұмыс істетеді және "қолданбадай" жылдам ашылуын қамтамасыз етеді.
 // Жаңа нұсқа шығарғанда CACHE_NAME мәнін өзгертіңіз (мыс. 'iqarena-v2') — ескі кэш автоматты тазаланады.
 
-const CACHE_NAME = 'iqarena-v12';
+const CACHE_NAME = 'iqarena-v13';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './script.js',
   './manifest.json',
+  './games/firebase-init.js',
+  './games/auth.js',
   './games/sound.js',
   './games/numbers.js',
   './games/memory.js',
@@ -43,6 +45,9 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+  // Firebase (Auth/Firestore/SDK) сияқты сыртқы домендерге кэштеу қолданбаймыз —
+  // тікелей желіге жібереміз, әйтпесе тіркелу/кіру/рейтинг деректері ескіріп қалуы мүмкін
+  if (new URL(event.request.url).origin !== self.location.origin) return;
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;

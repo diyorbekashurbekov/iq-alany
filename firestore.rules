@@ -1,0 +1,22 @@
+// Firestore қауіпсіздік ережелері.
+// Firebase Console → Firestore Database → Rules бөліміне осы мәтінді
+// толық көшіріп қойып, "Publish" басыңыз.
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Әр пайдаланушының жеке деректері (ұпайлар, жетістіктер) —
+    // тек сол пайдаланушының өзі оқи/жаза алады.
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Ортақ рейтинг — барлығы оқи алады (қонақтар да), бірақ әркім
+    // тек өз жазбасын жаза алады (басқа біреудің ұпайын өзгерте алмайды).
+    match /leaderboard/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

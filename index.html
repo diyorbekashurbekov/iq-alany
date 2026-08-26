@@ -18,7 +18,7 @@
 
 <div class="bg-decor" aria-hidden="true"></div>
 
-<!-- Аты-жөнін енгізу экраны -->
+<!-- Аты-жөнін енгізу / аккаунт экраны -->
 <section id="screen-login" class="screen active">
   <div class="card login-card">
     <div class="brand">
@@ -26,11 +26,33 @@
       <h1>IQ Алаңы</h1>
     </div>
     <p class="tagline">Ойнай отырып ойлауыңды дамыт</p>
-    <form id="login-form">
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" data-tab="guest">Қонақ болып ойнау</button>
+      <button type="button" class="auth-tab" data-tab="account">Аккаунтпен кіру</button>
+    </div>
+
+    <form id="login-form" class="auth-panel active" data-panel="guest">
       <label for="player-name">Атыңызды жазыңыз</label>
       <input type="text" id="player-name" placeholder="Мысалы: Диярбек" maxlength="20" autocomplete="off" required>
       <button type="submit" class="btn btn-primary">Бастау</button>
+      <p class="auth-hint">Прогресс тек осы құрылғыда сақталады</p>
     </form>
+
+    <div class="auth-panel" data-panel="account">
+      <label for="account-name">Атыңыз (тек тіркелу үшін)</label>
+      <input type="text" id="account-name" placeholder="Мысалы: Диярбек" maxlength="20" autocomplete="off">
+      <label for="account-email">Email</label>
+      <input type="email" id="account-email" placeholder="you@example.com" autocomplete="email">
+      <label for="account-password">Құпия сөз</label>
+      <input type="password" id="account-password" placeholder="Кемінде 6 таңба" autocomplete="current-password" minlength="6">
+      <div class="auth-actions">
+        <button type="button" id="btn-login" class="btn btn-primary">Кіру</button>
+        <button type="button" id="btn-register" class="btn btn-ghost">Тіркелу</button>
+      </div>
+      <p class="auth-error" id="auth-error"></p>
+      <p class="auth-hint">Прогресс барлық құрылғыда сақталады, ортақ рейтингте көрінесіз</p>
+    </div>
   </div>
 </section>
 
@@ -41,10 +63,11 @@
       <span class="brand-icon small">🧠</span>
       <div>
         <h2>IQ Алаңы</h2>
-        <p class="greeting">Сәлем, <span id="hub-player-name">Ойыншы</span>! 👋</p>
+        <p class="greeting">Сәлем, <span id="hub-player-name">Ойыншы</span>! 👋 <span class="cloud-badge" id="hub-cloud-badge" style="display:none;">☁️ Аккаунт</span></p>
       </div>
     </div>
     <div class="hub-header-actions">
+      <button id="btn-leaderboard" class="btn btn-ghost" title="Ортақ рейтинг">🏆 Рейтинг</button>
       <button id="btn-mute" class="btn btn-ghost" title="Дыбысты қосу/өшіру">🔊</button>
       <button id="btn-change-name" class="btn btn-ghost">Атты ауыстыру</button>
     </div>
@@ -201,6 +224,22 @@
   </div>
   <div class="game-body" id="origins-body"></div>
 </section>
+
+<!-- Ортақ рейтинг -->
+<section id="screen-leaderboard" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🏆 Ортақ рейтинг</div>
+  </div>
+  <div class="game-body" id="leaderboard-body"></div>
+</section>
+
+<!-- Firebase SDK (аккаунт және ортақ рейтинг үшін) -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="games/firebase-init.js"></script>
+<script src="games/auth.js"></script>
 
 <script src="script.js"></script>
 <script src="games/sound.js"></script>

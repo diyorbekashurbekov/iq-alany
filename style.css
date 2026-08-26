@@ -79,9 +79,10 @@ html, body {
 }
 .tagline { color: var(--ink-soft); margin: 8px 0 28px; }
 
-#login-form { display: flex; flex-direction: column; gap: 12px; }
-#login-form label { text-align: left; font-size: 0.9rem; color: var(--ink-soft); }
-#login-form input {
+#login-form, .auth-panel { display: none; flex-direction: column; gap: 12px; text-align: left; }
+#login-form.active, .auth-panel.active { display: flex; }
+#login-form label, .auth-panel label { text-align: left; font-size: 0.9rem; color: var(--ink-soft); }
+#login-form input, .auth-panel input {
   padding: 14px 16px;
   border-radius: 12px;
   border: 1.5px solid rgba(255,255,255,0.12);
@@ -91,9 +92,65 @@ html, body {
   outline: none;
   transition: border-color .15s, box-shadow .15s;
   font-family: inherit;
+  width: 100%;
 }
-#login-form input::placeholder { color: #5b6288; }
-#login-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,147,255,0.15); }
+#login-form input::placeholder, .auth-panel input::placeholder { color: #5b6288; }
+#login-form input:focus, .auth-panel input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,147,255,0.15); }
+
+/* ---------- Аккаунт табтары ---------- */
+.auth-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  background: #0d1224;
+  border-radius: 12px;
+  padding: 4px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.auth-tab.active { background: var(--primary); color: #fff; }
+.auth-hint { font-size: 0.78rem; color: var(--ink-soft); text-align: center; margin: 4px 0 0; }
+.auth-error { font-size: 0.82rem; color: var(--danger); text-align: center; margin: 0; min-height: 18px; }
+.auth-actions { display: flex; gap: 10px; }
+.auth-actions .btn { flex: 1; }
+.cloud-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  background: rgba(94,234,212,0.15);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+/* ---------- Ортақ рейтинг ---------- */
+.leaderboard-list { padding: 10px; }
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+}
+.leaderboard-row:nth-child(odd) { background: rgba(255,255,255,0.02); }
+.leaderboard-row.me { background: rgba(124,147,255,0.14); border: 1px solid rgba(124,147,255,0.35); }
+.leaderboard-rank { width: 28px; font-weight: 800; color: var(--ink-soft); text-align: center; }
+.leaderboard-row:nth-child(1) .leaderboard-rank { color: #ffd166; }
+.leaderboard-row:nth-child(2) .leaderboard-rank { color: #c7ccd8; }
+.leaderboard-row:nth-child(3) .leaderboard-rank { color: #d99a5b; }
+.leaderboard-name { flex: 1; font-weight: 600; }
+.leaderboard-score { color: var(--primary); font-weight: 700; font-size: 0.9rem; }
 
 .btn {
   border: none;

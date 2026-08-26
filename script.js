@@ -1,28 +1,46 @@
 // Ортақ утилиталар: ойыншы аты, экрандар арасында ауысу, ұпайды сақтау
 
+// Store екі режимде жұмыс істейді:
+//  - Аккаунтпен кірген болса (window.CloudUser бар) — деректер Firestore-де
+//    сақталады (games/auth.js), window.CloudData жедел кэш ретінде қызмет етеді.
+//  - Қонақ режимінде — бәрі бұрынғыдай localStorage-те, тек осы құрылғыда.
 const Store = {
+  isCloud() {
+    return !!window.CloudUser;
+  },
   getPlayer() {
+    if (this.isCloud()) return window.CloudUser.displayName || window.CloudUser.email || 'Ойыншы';
     return localStorage.getItem('iqarena_player') || '';
   },
   setPlayer(name) {
     localStorage.setItem('iqarena_player', name);
   },
   getBest(gameId) {
+    if (this.isCloud()) return (window.CloudData.bests && window.CloudData.bests[gameId]) || null;
     const key = `iqarena_best_${gameId}_${this.getPlayer()}`;
     return JSON.parse(localStorage.getItem(key) || 'null');
   },
   setBest(gameId, value) {
-    const key = `iqarena_best_${gameId}_${this.getPlayer()}`;
-    localStorage.setItem(key, JSON.stringify(value));
+    if (this.isCloud()) {
+      window.CloudSync.saveBest(gameId, value).catch(e => console.error('Firestore жазу қатесі:', e));
+    } else {
+      const key = `iqarena_best_${gameId}_${this.getPlayer()}`;
+      localStorage.setItem(key, JSON.stringify(value));
+    }
     checkAchievements();
   },
   getUnlocked() {
+    if (this.isCloud()) return window.CloudData.achievements || [];
     const key = `iqarena_achievements_${this.getPlayer()}`;
     return JSON.parse(localStorage.getItem(key) || '[]');
   },
   setUnlocked(list) {
-    const key = `iqarena_achievements_${this.getPlayer()}`;
-    localStorage.setItem(key, JSON.stringify(list));
+    if (this.isCloud()) {
+      window.CloudSync.saveAchievements(list).catch(e => console.error('Firestore жазу қатесі:', e));
+    } else {
+      const key = `iqarena_achievements_${this.getPlayer()}`;
+      localStorage.setItem(key, JSON.stringify(list));
+    }
   }
 };
 
@@ -197,6 +215,10 @@ function bestLabel(gameId) {
 
 function renderHub() {
   document.getElementById('hub-player-name').textContent = Store.getPlayer() || 'Ойыншы';
+  const changeNameBtn = document.getElementById('btn-change-name');
+  if (changeNameBtn) changeNameBtn.textContent = Store.isCloud() ? 'Шығу' : 'Атты ауыстыру';
+  const cloudBadge = document.getElementById('hub-cloud-badge');
+  if (cloudBadge) cloudBadge.style.display = Store.isCloud() ? 'inline-block' : 'none';
   const grid = document.getElementById('game-grid');
   grid.innerHTML = '';
   GAMES.forEach(game => {
@@ -380,11 +402,89 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
   return { start };
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const existing = Store.getPlayer();
-  if (existing) {
-    goHub();
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+
+async function renderLeaderboard() {
+  const body = document.getElementById('leaderboard-body');
+  if (!window.Auth || !Auth.isReady()) {
+    body.innerHTML = `<div class="panel"><p class="sub-hint">Ортақ рейтинг әлі қосылмаған.</p></div>`;
+    return;
   }
+  body.innerHTML = `<div class="panel"><p class="sub-hint">Жүктелуде...</p></div>`;
+  try {
+    const rows = await CloudSync.fetchLeaderboard(20);
+    if (rows.length === 0) {
+      body.innerHTML = `<div class="panel"><p class="sub-hint">Әзірге ешкім аккаунтпен ойнаған жоқ. Бірінші боп көрсетіңіз! 🚀</p></div>`;
+      return;
+    }
+    const me = Store.isCloud() ? Store.getPlayer() : null;
+    body.innerHTML = `<div class="card leaderboard-list">${rows.map((r, i) => `
+      <div class="leaderboard-row ${r.displayName === me ? 'me' : ''}">
+        <span class="leaderboard-rank">${i + 1}</span>
+        <span class="leaderboard-name">${escapeHtml(r.displayName)}</span>
+        <span class="leaderboard-score">${r.totalLevel} деңгей</span>
+      </div>
+    `).join('')}</div>`;
+  } catch (e) {
+    console.error(e);
+    body.innerHTML = `<div class="panel"><p class="sub-hint">Жүктеу қатесі. Қайталап көріңіз.</p></div>`;
+  }
+}
+
+function setupAuthUI() {
+  document.querySelectorAll('.auth-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.auth-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelector(`.auth-panel[data-panel="${tab.dataset.tab}"]`).classList.add('active');
+    });
+  });
+
+  if (!window.Auth || !Auth.isReady()) {
+    const accountTab = document.querySelector('.auth-tab[data-tab="account"]');
+    if (accountTab) accountTab.style.display = 'none';
+    return;
+  }
+
+  const errEl = document.getElementById('auth-error');
+
+  document.getElementById('btn-login').addEventListener('click', async () => {
+    errEl.textContent = '';
+    const email = document.getElementById('account-email').value.trim();
+    const password = document.getElementById('account-password').value;
+    if (!email || !password) { errEl.textContent = 'Email мен құпия сөзді толтырыңыз.'; return; }
+    try {
+      await Auth.login(email, password);
+      goHub();
+    } catch (e) {
+      errEl.textContent = authErrorText(e.code);
+    }
+  });
+
+  document.getElementById('btn-register').addEventListener('click', async () => {
+    errEl.textContent = '';
+    const name = document.getElementById('account-name').value.trim();
+    const email = document.getElementById('account-email').value.trim();
+    const password = document.getElementById('account-password').value;
+    if (!email || !password) { errEl.textContent = 'Email мен құпия сөзді толтырыңыз.'; return; }
+    if (password.length < 6) { errEl.textContent = 'Құпия сөз кемінде 6 таңба болуы керек.'; return; }
+    try {
+      const guestName = Store.getPlayer();
+      await Auth.register(email, password, name, guestName);
+      goHub();
+    } catch (e) {
+      errEl.textContent = authErrorText(e.code);
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  setupAuthUI();
 
   document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -394,10 +494,21 @@ document.addEventListener('DOMContentLoaded', () => {
     goHub();
   });
 
-  document.getElementById('btn-change-name').addEventListener('click', () => {
-    document.getElementById('player-name').value = Store.getPlayer();
+  document.getElementById('btn-change-name').addEventListener('click', async () => {
+    if (Store.isCloud()) {
+      await Auth.logout();
+    }
+    document.getElementById('player-name').value = Store.isCloud() ? '' : Store.getPlayer();
     showScreen('screen-login');
   });
+
+  const leaderboardBtn = document.getElementById('btn-leaderboard');
+  if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', () => {
+      showScreen('screen-leaderboard');
+      renderLeaderboard();
+    });
+  }
 
   document.querySelectorAll('[data-back]').forEach(btn => {
     btn.addEventListener('click', goHub);
@@ -410,6 +521,25 @@ document.addEventListener('DOMContentLoaded', () => {
       muteBtn.textContent = muted ? '🔇' : '🔊';
       if (!muted) Sound.play('click');
     });
+  }
+
+  if (window.Auth && Auth.isReady()) {
+    window.firebaseAuth.onAuthStateChanged(async (user) => {
+      if (user) {
+        window.CloudUser = user;
+        try {
+          window.CloudData = await CloudSync.loadUserDoc(user.uid);
+        } catch (e) {
+          console.error('Cloud деректі жүктеу қатесі:', e);
+          window.CloudData = { bests: {}, achievements: [] };
+        }
+        goHub();
+      } else if (Store.getPlayer()) {
+        goHub();
+      }
+    });
+  } else if (Store.getPlayer()) {
+    goHub();
   }
 });
 
