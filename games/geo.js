@@ -52,13 +52,26 @@ function pickRandom(arr, n, excludeIndexes = []) {
   return chosen.map(i => arr[i]);
 }
 
+let geoLastLevel = null;
+let geoUsed = [];
+
 function getGeoQuestion(level) {
+  if (level !== geoLastLevel) {
+    geoLastLevel = level;
+    geoUsed = [];
+  }
   const tier = level <= 2 ? 1 : level <= 4 ? 2 : 3;
   const mode = level % 2 === 1 ? 'flag' : 'capital';
   const pool = GEO_DATA.filter(c => c.tier === tier);
 
-  const correctIdx = Math.floor(Math.random() * pool.length);
-  const correct = pool[correctIdx];
+  let available = pool.filter(c => !geoUsed.includes(c));
+  if (available.length === 0) {
+    geoUsed = [];
+    available = pool;
+  }
+  const correct = available[Math.floor(Math.random() * available.length)];
+  geoUsed.push(correct);
+  const correctIdx = pool.indexOf(correct);
   const distractors = pickRandom(pool, 3, [correctIdx]);
   const options = [correct, ...distractors].sort(() => Math.random() - 0.5);
 
