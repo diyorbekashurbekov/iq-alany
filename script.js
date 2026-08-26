@@ -96,6 +96,14 @@ const GAMES = [
     desc: 'Кофе, шахмат, пицца... әрқайсысы қай елден шыққанын білесің бе?',
     screen: 'screen-origins',
     start: () => window.OriginsGame.start()
+  },
+  {
+    id: 'world',
+    icon: '🌐',
+    title: 'Әлем білімі',
+    desc: 'География, жануарлар, ғарыш, IT — жалпы білімің қаншалықты кең?',
+    screen: 'screen-world',
+    start: () => window.WorldGame.start()
   }
 ];
 
@@ -113,6 +121,7 @@ const ACHIEVEMENTS = [
   { id: 't48_winner', icon: '🟩', title: '2048 жеңімпазы', desc: '2048 санына жет', check: b => b.twenty48 && b.twenty48.level >= T48_CHAMPION_LEVEL },
   { id: 'geo_master', icon: '🌍', title: 'Жер шары', desc: 'География ойынында барлық деңгейден өт', check: b => b.geo && b.geo.level >= 5 },
   { id: 'origins_master', icon: '🧭', title: 'Әлem білгірі', desc: '"Қайдан шықты?" ойынында барлық деңгейден өт', check: b => b.origins && b.origins.level >= 6 },
+  { id: 'world_master', icon: '🌐', title: 'Энциклопедист', desc: '"Әлем білімі" ойынында барлық деңгейден өт', check: b => b.world && b.world.level >= 6 },
   { id: 'whack_master', icon: '🔨', title: 'Реакция королі', desc: 'Кроттар ойынында барлық деңгейден өт', check: b => b.whack && b.whack.level >= 5 },
   { id: 'numbers_master', icon: '🔢', title: 'Логика данышпаны', desc: 'Сандар логикасында барлық деңгейден өт', check: b => b.numbers && b.numbers.level >= 8 },
   { id: 'all_star', icon: '👑', title: 'IQ чемпионы', desc: 'Барлық ойындарда кемінде 1 деңгей жеңу', check: b => GAMES.every(g => b[g.id] && b[g.id].level >= 1) },
