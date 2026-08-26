@@ -5,7 +5,7 @@
 // жаңа топтама қосу үшін жаңа world-data-N.js файлын жасап, төмендегі тізімге
 // қосу жеткілікті. index.html және sw.js-ке де жаңа файлды қосу керек.
 
-const WORLD_DATA = [...WORLD_DATA_1, ...WORLD_DATA_2];
+const WORLD_DATA = [...WORLD_DATA_1, ...WORLD_DATA_2, ...WORLD_DATA_3];
 
 function worldShuffleOptions(item) {
   const correctText = item.options[item.correctIndex];
