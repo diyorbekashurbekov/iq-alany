@@ -1,0 +1,470 @@
+:root {
+  --bg-1: #0a0e1a;
+  --bg-2: #120c24;
+  --bg-3: #071612;
+  --card: #12172a;
+  --card-border: rgba(255, 255, 255, 0.07);
+  --surface: #1a2038;
+  --ink: #eef0f8;
+  --ink-soft: #9099bb;
+  --primary: #7c93ff;
+  --primary-dark: #5468d8;
+  --accent: #5eead4;
+  --danger: #ff6b7a;
+  --success: #4ade80;
+  --radius: 18px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --glow: 0 0 0 1px rgba(124, 147, 255, 0.3), 0 8px 30px rgba(124, 147, 255, 0.18);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", system-ui, Arial, sans-serif;
+  color: var(--ink);
+  background: linear-gradient(160deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(124, 147, 255, 0.22), transparent 42%),
+    radial-gradient(circle at 85% 12%, rgba(168, 130, 255, 0.18), transparent 42%),
+    radial-gradient(circle at 50% 95%, rgba(94, 234, 212, 0.14), transparent 45%);
+  animation: bgDrift 16s ease-in-out infinite alternate;
+}
+
+@keyframes bgDrift {
+  from { transform: scale(1) translate(0, 0); opacity: 0.9; }
+  to { transform: scale(1.08) translate(-1%, 1%); opacity: 1; }
+}
+
+.screen { display: none; padding: 24px 6vw 60px; min-height: 100vh; }
+.screen.active { display: block; animation: screenFadeIn .35s ease; }
+
+@keyframes screenFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- Кіру экраны ---------- */
+#screen-login.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-card {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: 44px 36px;
+}
+.brand { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.brand-icon { font-size: 2.4rem; filter: drop-shadow(0 0 14px rgba(124,147,255,0.5)); }
+.brand-icon.small { font-size: 1.9rem; filter: drop-shadow(0 0 10px rgba(124,147,255,0.4)); }
+.login-card h1 {
+  margin: 0;
+  font-size: 1.9rem;
+  background: linear-gradient(135deg, #fff, var(--primary) 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tagline { color: var(--ink-soft); margin: 8px 0 28px; }
+
+#login-form { display: flex; flex-direction: column; gap: 12px; }
+#login-form label { text-align: left; font-size: 0.9rem; color: var(--ink-soft); }
+#login-form input {
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255,255,255,0.12);
+  background: #0d1224;
+  color: var(--ink);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  font-family: inherit;
+}
+#login-form input::placeholder { color: #5b6288; }
+#login-form input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(124,147,255,0.15); }
+
+.btn {
+  border: none;
+  border-radius: 12px;
+  padding: 13px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform .12s ease, box-shadow .12s ease, background .15s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(124, 147, 255, 0.35);
+}
+.btn-primary:hover { box-shadow: 0 10px 28px rgba(124, 147, 255, 0.5); transform: translateY(-1px); }
+.btn-ghost {
+  background: rgba(255,255,255,0.05);
+  color: var(--ink);
+  border: 1.5px solid rgba(255,255,255,0.1);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+/* ---------- Хаб экраны ---------- */
+.hub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 18px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.hub-header-left { display: flex; align-items: center; gap: 12px; }
+.hub-header-actions { display: flex; gap: 10px; align-items: center; }
+.hub-header-left h2 { margin: 0 0 2px; }
+.greeting { margin: 0; color: var(--ink-soft); font-size: 0.95rem; }
+.hub-subtitle { color: var(--ink-soft); margin: 22px 0 18px; }
+
+/* ---------- Ойыншы статистикасы ---------- */
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+.stat-tile {
+  padding: 18px 20px;
+  text-align: center;
+}
+.stat-tile .stat-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.stat-tile .stat-label { font-size: 0.78rem; color: var(--ink-soft); margin-top: 4px; }
+
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+.game-card {
+  padding: 26px 22px;
+  cursor: pointer;
+  text-align: left;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  position: relative;
+  overflow: hidden;
+}
+.game-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 0%, rgba(124,147,255,0.12), transparent 60%);
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glow);
+  border-color: rgba(124,147,255,0.35);
+}
+.game-card:hover::before { opacity: 1; }
+.game-card .icon {
+  font-size: 2.4rem;
+  display: block;
+  margin-bottom: 10px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+}
+.game-card h3 { margin: 0 0 6px; font-size: 1.15rem; }
+.game-card p { margin: 0 0 14px; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.4; }
+.game-card .best {
+  display: inline-block;
+  font-size: 0.8rem;
+  background: rgba(124,147,255,0.14);
+  color: var(--primary);
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  position: relative;
+}
+.hub-footer { text-align: center; color: var(--ink-soft); margin-top: 40px; font-size: 0.9rem; }
+
+/* ---------- Жетістіктер картасы ---------- */
+.achievements-card { margin-top: 28px; padding: 24px 26px; }
+.achievements-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.achievements-head h3 { margin: 0; font-size: 1.1rem; }
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1.5px solid rgba(255,255,255,0.06);
+}
+.badge.locked { opacity: 0.4; filter: grayscale(1); }
+.badge.unlocked {
+  background: rgba(124,147,255,0.12);
+  border-color: rgba(124,147,255,0.35);
+  box-shadow: 0 0 18px rgba(124,147,255,0.15);
+}
+.badge-icon { font-size: 1.7rem; }
+.badge-title { font-size: 0.78rem; color: var(--ink-soft); line-height: 1.25; }
+
+/* ---------- Жетістік toast хабарламасы ---------- */
+.achievement-toast {
+  position: fixed;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid rgba(124,147,255,0.3);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 30px rgba(124,147,255,0.2);
+  padding: 14px 22px;
+  z-index: 10000;
+  transition: top .4s cubic-bezier(.34,1.56,.64,1);
+}
+.achievement-toast.show { top: 20px; }
+.achievement-toast-icon { font-size: 2rem; }
+.achievement-toast-title { font-size: 0.78rem; color: var(--ink-soft); }
+.achievement-toast-name { font-weight: 700; color: var(--ink); }
+
+/* ---------- Конфетти ---------- */
+.confetti-piece {
+  position: fixed;
+  top: -10px;
+  width: 8px;
+  height: 14px;
+  opacity: 0.9;
+  z-index: 9999;
+  border-radius: 2px;
+  animation-name: confettiFall;
+  animation-timing-function: ease-in;
+  pointer-events: none;
+}
+@keyframes confettiFall {
+  to { transform: translateY(110vh) rotate(540deg); opacity: 0.3; }
+}
+
+/* ---------- Ойын экрандары (ортақ) ---------- */
+.game-screen { padding-top: 18px; }
+.game-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.game-title { font-size: 1.25rem; font-weight: 700; }
+.game-stats { display: flex; gap: 16px; font-size: 0.95rem; color: var(--ink-soft); }
+.game-stats b { color: var(--ink); }
+
+.game-body {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 32px;
+  text-align: center;
+}
+
+.question-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 6px 0 30px;
+  letter-spacing: 0.5px;
+}
+.sub-hint { color: var(--ink-soft); margin-bottom: 24px; font-size: 0.95rem; }
+
+.flag-img {
+  height: 100px;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  margin-bottom: 14px;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 14px;
+}
+.option-btn {
+  padding: 16px 12px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: var(--surface);
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all .12s ease;
+  font-family: inherit;
+}
+.option-btn:hover { border-color: var(--primary); background: #212a4d; }
+.option-btn.correct { background: rgba(74,222,128,0.15); border-color: var(--success); color: #86efac; }
+.option-btn.wrong { background: rgba(255,107,122,0.15); border-color: var(--danger); color: #ffb0b8; }
+.option-btn:disabled { cursor: default; }
+
+.feedback-row { margin-top: 22px; min-height: 30px; font-weight: 600; }
+.feedback-row.ok { color: var(--success); }
+.feedback-row.bad { color: var(--danger); }
+
+.result-panel { text-align: center; }
+.result-emoji { font-size: 3rem; margin-bottom: 10px; filter: drop-shadow(0 4px 14px rgba(124,147,255,0.4)); }
+.result-actions { display: flex; gap: 12px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+
+/* ---------- Жады ойыны торы ---------- */
+.memory-grid {
+  display: grid;
+  gap: 12px;
+  justify-content: center;
+  margin: 0 auto;
+}
+.memory-tile {
+  width: 74px;
+  height: 74px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #fff;
+  user-select: none;
+  transition: transform .18s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+.memory-tile.revealed { background: var(--surface); color: var(--ink); border: 2px solid rgba(255,255,255,0.12); box-shadow: none; }
+.memory-tile.matched { background: rgba(74,222,128,0.15); border: 2px solid var(--success); color: #86efac; cursor: default; }
+
+/* ---------- 2048 ---------- */
+.t48-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  max-width: 420px;
+  margin: 0 auto;
+  background: #0c1122;
+  padding: 10px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  touch-action: none;
+  border: 1px solid var(--card-border);
+}
+.t48-cell {
+  aspect-ratio: 1 / 1;
+  background: #171d33;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+/* ---------- Жылан ---------- */
+#snake-canvas {
+  display: block;
+  margin: 0 auto;
+  background: #0c1122;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  max-width: 100%;
+  border: 1px solid var(--card-border);
+}
+
+/* ---------- Simon (түстер тізбегі) ---------- */
+.simon-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 280px;
+  margin: 0 auto;
+}
+.simon-pad {
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity .1s, transform .1s, box-shadow .1s;
+  border: none;
+}
+.simon-pad.active { opacity: 1; transform: scale(0.97); box-shadow: 0 0 30px currentColor; }
+.simon-pad:nth-child(1) { background: #ef4444; color: #ef4444; border-radius: 16px 4px 4px 4px; }
+.simon-pad:nth-child(2) { background: #3b82f6; color: #3b82f6; border-radius: 4px 16px 4px 4px; }
+.simon-pad:nth-child(3) { background: #22c55e; color: #22c55e; border-radius: 4px 4px 4px 16px; }
+.simon-pad:nth-child(4) { background: #eab308; color: #eab308; border-radius: 4px 4px 16px 4px; }
+
+/* ---------- Кроттарды ұста ---------- */
+.whack-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  max-width: 340px;
+  margin: 0 auto;
+}
+.whack-hole {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(circle at 50% 40%, #8a6349, #4a3222);
+  border-radius: 50%;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow: inset 0 6px 16px rgba(0,0,0,0.55);
+}
+.whack-hole .mole {
+  position: absolute;
+  left: 50%;
+  bottom: -70%;
+  font-size: 2rem;
+  transform: translateX(-50%);
+  transition: bottom .12s ease;
+}
+.whack-hole.up .mole { bottom: 12%; }
+.whack-hole.hit { background: radial-gradient(circle at 50% 40%, #5fce8f, #16a34a); }
+
+@media (max-width: 480px) {
+  .memory-tile { width: 58px; height: 58px; font-size: 1.4rem; }
+  .login-card { padding: 34px 22px; }
+}

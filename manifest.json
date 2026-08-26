@@ -1,0 +1,18 @@
+{
+  "name": "IQ Алаңы — ойнай отырып ойлан",
+  "short_name": "IQ Алаңы",
+  "description": "IQ дамытатын ойындар платформасы: 2048, Жылан, Түстер тізбегі, Кроттарды ұста, Сандар логикасы, Жады, География, Футбол.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#eaf3fb",
+  "theme_color": "#6c8cff",
+  "lang": "kk",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

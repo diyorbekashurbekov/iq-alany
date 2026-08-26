@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IQ Alаңы — ойнай отырып ойлан</title>
+<meta name="description" content="IQ дамытатын ойындар платформасы — сандар логикасы, жады, география, футбол, 2048, жылан және т.б.">
+<meta name="theme-color" content="#6c8cff">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IQ Алаңы">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="bg-decor" aria-hidden="true"></div>
+
+<!-- Аты-жөнін енгізу экраны -->
+<section id="screen-login" class="screen active">
+  <div class="card login-card">
+    <div class="brand">
+      <span class="brand-icon">🧠</span>
+      <h1>IQ Алаңы</h1>
+    </div>
+    <p class="tagline">Ойнай отырып ойлауыңды дамыт</p>
+    <form id="login-form">
+      <label for="player-name">Атыңызды жазыңыз</label>
+      <input type="text" id="player-name" placeholder="Мысалы: Диярбек" maxlength="20" autocomplete="off" required>
+      <button type="submit" class="btn btn-primary">Бастау</button>
+    </form>
+  </div>
+</section>
+
+<!-- Ойындар хабы -->
+<section id="screen-hub" class="screen">
+  <header class="hub-header">
+    <div class="hub-header-left">
+      <span class="brand-icon small">🧠</span>
+      <div>
+        <h2>IQ Алаңы</h2>
+        <p class="greeting">Сәлем, <span id="hub-player-name">Ойыншы</span>! 👋</p>
+      </div>
+    </div>
+    <div class="hub-header-actions">
+      <button id="btn-mute" class="btn btn-ghost" title="Дыбысты қосу/өшіру">🔊</button>
+      <button id="btn-change-name" class="btn btn-ghost">Атты ауыстыру</button>
+    </div>
+  </header>
+
+  <p class="hub-subtitle">Қалаған ойыныңды таңда, деңгейден-деңгейге көтеріл 🚀</p>
+
+  <div class="stats-strip">
+    <div class="card stat-tile">
+      <div class="stat-value" id="stat-total-level">0</div>
+      <div class="stat-label">Жалпы деңгей</div>
+    </div>
+    <div class="card stat-tile">
+      <div class="stat-value" id="stat-games-played">0/8</div>
+      <div class="stat-label">Ойналған ойындар</div>
+    </div>
+    <div class="card stat-tile">
+      <div class="stat-value" id="stat-achievements">0/9</div>
+      <div class="stat-label">Жетістіктер</div>
+    </div>
+  </div>
+
+  <div class="game-grid" id="game-grid">
+    <!-- JS арқылы толтырылады -->
+  </div>
+
+  <div class="card achievements-card">
+    <div class="achievements-head">
+      <h3>🏅 Жетістіктер</h3>
+      <span class="best" id="achievements-count">0 / 0</span>
+    </div>
+    <div class="badges-grid" id="achievements-panel"></div>
+  </div>
+
+  <footer class="hub-footer">
+    <p>Жаңа ойындар жақында қосылады ✨</p>
+  </footer>
+</section>
+
+<!-- 2048 -->
+<section id="screen-twenty48" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🟩 2048</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="twenty48-level">1</b></span>
+      <span>Ұпай: <b id="twenty48-score">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="twenty48-body"></div>
+</section>
+
+<!-- Жылан -->
+<section id="screen-snake" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🐍 Жылан</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="snake-level">1</b></span>
+      <span>Ұпай: <b id="snake-score">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="snake-body"></div>
+</section>
+
+<!-- Simon — түстер тізбегі -->
+<section id="screen-simon" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🎨 Түстер тізбегі</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="simon-level">1</b></span>
+      <span>Үздік: <b id="simon-best">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="simon-body"></div>
+</section>
+
+<!-- Кроттарды ұста -->
+<section id="screen-whack" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🔨 Кроттарды ұста</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="whack-level">1</b></span>
+      <span>Ұпай: <b id="whack-score">0</b></span>
+      <span>Уақыт: <b id="whack-time">15</b>с</span>
+    </div>
+  </div>
+  <div class="game-body" id="whack-body"></div>
+</section>
+
+<!-- Сандар логикасы ойыны -->
+<section id="screen-numbers" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🔢 Сандар логикасы</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="numbers-level">1</b></span>
+      <span>Ұпай: <b id="numbers-score">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="numbers-body"></div>
+</section>
+
+<!-- Жады ойыны -->
+<section id="screen-memory" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🧩 Жады ойыны</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="memory-level">1</b></span>
+      <span>Қадам: <b id="memory-moves">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="memory-body"></div>
+</section>
+
+<!-- География ойыны -->
+<section id="screen-geo" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">🌍 География шебері</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="geo-level">1</b></span>
+      <span>Ұпай: <b id="geo-score">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="geo-body"></div>
+</section>
+
+<!-- Футбол викторинасы -->
+<section id="screen-football" class="screen game-screen">
+  <div class="game-topbar">
+    <button class="btn btn-ghost btn-back" data-back>← Хабқа оралу</button>
+    <div class="game-title">⚽ Футбол білгірі</div>
+    <div class="game-stats">
+      <span>Деңгей: <b id="football-level">1</b></span>
+      <span>Ұпай: <b id="football-score">0</b></span>
+    </div>
+  </div>
+  <div class="game-body" id="football-body"></div>
+</section>
+
+<script src="script.js"></script>
+<script src="games/sound.js"></script>
+<script src="games/numbers.js"></script>
+<script src="games/memory.js"></script>
+<script src="games/geo.js"></script>
+<script src="games/football.js"></script>
+<script src="games/twenty48.js"></script>
+<script src="games/snake.js"></script>
+<script src="games/simon.js"></script>
+<script src="games/whack.js"></script>
+</body>
+</html>
