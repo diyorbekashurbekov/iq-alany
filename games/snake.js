@@ -7,6 +7,12 @@ const SNK_START_SPEED = 160;
 const SNK_MIN_SPEED = 70;
 
 let snkSnake, snkDir, snkNextDir, snkFood, snkScore, snkFoodEaten, snkSpeed, snkLoopId, snkCtx, snkKeyHandler;
+let snkTouchStart = null;
+
+function snkSetDirection(dir) {
+  if (dir.x === -snkDir.x && dir.y === -snkDir.y) return;
+  snkNextDir = dir;
+}
 
 function snkRandCell() {
   return {
@@ -107,10 +113,36 @@ function snkGameOver() {
 function snkStartRound() {
   const body = document.getElementById('snake-body');
   body.innerHTML = `
-    <p class="sub-hint" style="text-align:center;">Көрсеткі пернелерімен (немесе WASD) басқар</p>
+    <p class="sub-hint" style="text-align:center;">Көрсеткі пернелерімен, саусақпен сырғытып немесе төмендегі түймелермен басқар</p>
     <canvas id="snake-canvas" width="${SNK_COLS * SNK_CELL}" height="${SNK_ROWS * SNK_CELL}"></canvas>
+    <div class="snk-dpad">
+      <button class="snk-dpad-btn snk-dpad-up" id="snk-btn-up" aria-label="Жоғары">▲</button>
+      <button class="snk-dpad-btn snk-dpad-left" id="snk-btn-left" aria-label="Солға">◀</button>
+      <button class="snk-dpad-btn snk-dpad-right" id="snk-btn-right" aria-label="Оңға">▶</button>
+      <button class="snk-dpad-btn snk-dpad-down" id="snk-btn-down" aria-label="Төмен">▼</button>
+    </div>
   `;
   snkCtx = document.getElementById('snake-canvas').getContext('2d');
+
+  document.getElementById('snk-btn-up').addEventListener('click', () => snkSetDirection({ x: 0, y: -1 }));
+  document.getElementById('snk-btn-down').addEventListener('click', () => snkSetDirection({ x: 0, y: 1 }));
+  document.getElementById('snk-btn-left').addEventListener('click', () => snkSetDirection({ x: -1, y: 0 }));
+  document.getElementById('snk-btn-right').addEventListener('click', () => snkSetDirection({ x: 1, y: 0 }));
+
+  const canvas = document.getElementById('snake-canvas');
+  canvas.addEventListener('touchstart', (e) => {
+    snkTouchStart = [e.touches[0].clientX, e.touches[0].clientY];
+  }, { passive: true });
+  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); }, { passive: false });
+  canvas.addEventListener('touchend', (e) => {
+    if (!snkTouchStart) return;
+    const dx = e.changedTouches[0].clientX - snkTouchStart[0];
+    const dy = e.changedTouches[0].clientY - snkTouchStart[1];
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) { snkTouchStart = null; return; }
+    if (Math.abs(dx) > Math.abs(dy)) snkSetDirection({ x: dx > 0 ? 1 : -1, y: 0 });
+    else snkSetDirection({ x: 0, y: dy > 0 ? 1 : -1 });
+    snkTouchStart = null;
+  });
 
   snkSnake = [{ x: 9, y: 10 }, { x: 8, y: 10 }, { x: 7, y: 10 }];
   snkDir = { x: 1, y: 0 };
@@ -139,8 +171,7 @@ window.SnakeGame = {
       const dir = SNK_KEY_MAP[e.key];
       if (!dir) return;
       e.preventDefault();
-      if (dir.x === -snkDir.x && dir.y === -snkDir.y) return;
-      snkNextDir = dir;
+      snkSetDirection(dir);
     };
     document.addEventListener('keydown', snkKeyHandler);
 

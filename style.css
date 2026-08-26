@@ -412,6 +412,40 @@ html, body {
   box-shadow: var(--shadow);
   max-width: 100%;
   border: 1px solid var(--card-border);
+  touch-action: none;
+}
+
+.snk-dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(3, 64px);
+  gap: 8px;
+  justify-content: center;
+  margin: 24px auto 0;
+}
+.snk-dpad-up { grid-column: 2; grid-row: 1; }
+.snk-dpad-left { grid-column: 1; grid-row: 2; }
+.snk-dpad-right { grid-column: 3; grid-row: 2; }
+.snk-dpad-down { grid-column: 2; grid-row: 3; }
+
+.snk-dpad-btn {
+  background: var(--surface);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  color: var(--ink);
+  font-size: 1.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .1s, transform .1s;
+  touch-action: manipulation;
+  user-select: none;
+}
+.snk-dpad-btn:active { background: var(--primary); transform: scale(0.94); }
+
+@media (max-width: 480px) {
+  .snk-dpad { grid-template-columns: repeat(3, 56px); grid-template-rows: repeat(3, 56px); }
 }
 
 /* ---------- Simon (түстер тізбегі) ---------- */
@@ -467,4 +501,11 @@ html, body {
 @media (max-width: 480px) {
   .memory-tile { width: 58px; height: 58px; font-size: 1.4rem; }
   .login-card { padding: 34px 22px; }
+
+  /* Тар экранда тақырып жолағы тасып кетпеу үшін бағанға жиналады */
+  .game-topbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .game-stats { width: 100%; justify-content: space-between; }
 }
