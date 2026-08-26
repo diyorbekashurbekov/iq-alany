@@ -255,6 +255,7 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
   let totalScore = 0;
   let qIndex = 0;
   let correctInLevel = 0;
+  let levelQuestions = [];
 
   function updateStats() {
     document.getElementById(levelId).textContent = level;
@@ -263,7 +264,7 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
 
   function renderQuestion() {
     const body = document.getElementById(bodyId);
-    const q = getQuestion(level);
+    const q = levelQuestions[qIndex];
     body.innerHTML = `
       <div class="panel">
         <div class="sub-hint">Сұрақ ${qIndex + 1} / ${questionsPerLevel} · Деңгей ${level}</div>
@@ -345,18 +346,27 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
       </div>
     `;
     if (!passed) {
-      document.getElementById(`${gameId}-retry`).addEventListener('click', () => beginLevel(level));
+      // "Қайталап көру" — дәл осы деңгейде жауап бере алмаған сол 5 сұрақ
+      // қайта шығады (жаттығу үшін), жаңа сұрақтар генерацияланбайды
+      document.getElementById(`${gameId}-retry`).addEventListener('click', () => beginLevel(level, true));
     }
     if (passed && !isLast) {
-      document.getElementById(`${gameId}-nextlevel`).addEventListener('click', () => beginLevel(level + 1));
+      // Келесі деңгей — жаңа сұрақтар генерацияланады
+      document.getElementById(`${gameId}-nextlevel`).addEventListener('click', () => beginLevel(level + 1, false));
     }
     body.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', goHub));
   }
 
-  function beginLevel(lvl) {
+  function beginLevel(lvl, reuseQuestions) {
     level = lvl;
     qIndex = 0;
     correctInLevel = 0;
+    if (!reuseQuestions) {
+      levelQuestions = [];
+      for (let i = 0; i < questionsPerLevel; i++) {
+        levelQuestions.push(getQuestion(lvl));
+      }
+    }
     updateStats();
     renderQuestion();
   }
@@ -364,7 +374,7 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
   function start() {
     level = 1;
     totalScore = 0;
-    beginLevel(1);
+    beginLevel(1, false);
   }
 
   return { start };
