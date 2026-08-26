@@ -119,7 +119,7 @@ const ACHIEVEMENTS = [
   { id: 'memory_master', icon: '🧠', title: 'Жады шебері', desc: 'Түстер тізбегінде 10+ ұзындыққа жет', check: b => b.simon && b.simon.level >= 10 },
   { id: 'snake_hero', icon: '🐍', title: 'Жылан батыры', desc: 'Жыланда 5-деңгейге жет', check: b => b.snake && b.snake.level >= 5 },
   { id: 't48_winner', icon: '🟩', title: '2048 жеңімпазы', desc: '2048 санына жет', check: b => b.twenty48 && b.twenty48.level >= T48_CHAMPION_LEVEL },
-  { id: 'geo_master', icon: '🌍', title: 'Жер шары', desc: 'География ойынында барлық деңгейден өт', check: b => b.geo && b.geo.level >= 5 },
+  { id: 'geo_master', icon: '🌍', title: 'Жер шары', desc: 'География ойынында барлық деңгейден өт', check: b => b.geo && b.geo.level >= 6 },
   { id: 'origins_master', icon: '🧭', title: 'Әлem білгірі', desc: '"Қайдан шықты?" ойынында барлық деңгейден өт', check: b => b.origins && b.origins.level >= 6 },
   { id: 'world_master', icon: '🌐', title: 'Энциклопедист', desc: '"Әлем білімі" ойынында барлық деңгейден өт', check: b => b.world && b.world.level >= 6 },
   { id: 'whack_master', icon: '🔨', title: 'Реакция королі', desc: 'Кроттар ойынында барлық деңгейден өт', check: b => b.whack && b.whack.level >= 5 },
