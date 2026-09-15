@@ -1,4 +1,4 @@
-// IQ Алаңы — Келушілер мен нәтижелерді қадағалау жүйесі (Telegram Bot)
+// IQ Алаңы — Келушілер мен нәтижелерді қадағалау жүйесі (Telegram Bot + Telegram Mini App)
 
 const TRACKER_CONFIG = {
   botToken: '8864316889:AAHf9GBBtJ1Dyj3pPEuAcWkomPHL-TtL_SU',
@@ -20,6 +20,51 @@ const GAME_NAMES = {
 };
 
 const Tracker = {
+  getTelegramUser() {
+    try {
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+        return window.Telegram.WebApp.initDataUnsafe.user || null;
+      }
+    } catch (e) {}
+    return null;
+  },
+
+  isTelegramApp() {
+    return !!this.getTelegramUser();
+  },
+
+  getCurrentPlayer() {
+    const tgUser = this.getTelegramUser();
+    if (tgUser) {
+      const full = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ');
+      return full || tgUser.username || 'Telegram ойыншысы';
+    }
+    try {
+      if (window.Store && typeof window.Store.getPlayer === 'function') {
+        const p = window.Store.getPlayer();
+        if (p) return p;
+      }
+    } catch (e) {}
+    return localStorage.getItem('iqarena_player') || '';
+  },
+
+  formatPlayerIdentity(explicitName) {
+    const tgUser = this.getTelegramUser();
+    if (tgUser) {
+      const name = explicitName || [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username || 'Ойыншы';
+      const userLink = `<a href="tg://user?id=${tgUser.id}"><b>${name}</b></a>`;
+      const uname = tgUser.username ? ` (@${tgUser.username})` : ' (юзернеймсіз)';
+      const prem = tgUser.is_premium ? ' ⭐ <i>Premium</i>' : '';
+      const lang = tgUser.language_code ? ` [${tgUser.language_code}]` : '';
+      return `${userLink}${uname}${prem}${lang}\n🆔 <b>Telegram ID:</b> <code>${tgUser.id}</code>`;
+    }
+    const name = explicitName || this.getCurrentPlayer();
+    if (name) {
+      return `<b>${name}</b> <i>(Браузер арқылы)</i>`;
+    }
+    return '<i>Аты әлі жазылмаған (Қонақ)</i>';
+  },
+
   getFormattedTime() {
     try {
       return new Date().toLocaleString('kk-KZ', {
@@ -53,7 +98,9 @@ const Tracker = {
     else if (/Linux/i.test(ua)) os = 'Linux';
 
     let browser = 'Белгісіз браузер';
-    if (/Edg\//i.test(ua)) browser = 'Edge';
+    if (this.isTelegramApp()) {
+      browser = 'Telegram Mini App (Ішкі браузер)';
+    } else if (/Edg\//i.test(ua)) browser = 'Edge';
     else if (/Chrome\//i.test(ua)) browser = 'Chrome';
     else if (/Safari\//i.test(ua) && !/Chrome\//i.test(ua)) browser = 'Safari';
     else if (/Firefox\//i.test(ua)) browser = 'Firefox';
@@ -74,8 +121,7 @@ const Tracker = {
         return {
           ip: data.ip || '',
           city: data.city || '',
-          country: data.country_name || data.country || '',
-          org: data.org || ''
+          country: data.country_name || data.country || ''
         };
       }
     } catch (e) {
@@ -112,14 +158,20 @@ const Tracker = {
     }
   },
 
-  getCurrentPlayer() {
+  // Telegram Haptic Feedback (Телефонның дірілдеуі)
+  haptic(type = 'light') {
     try {
-      if (window.Store && typeof window.Store.getPlayer === 'function') {
-        const p = window.Store.getPlayer();
-        if (p) return p;
+      if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.HapticFeedback) {
+        const h = window.Telegram.WebApp.HapticFeedback;
+        if (type === 'success' || type === 'error' || type === 'warning') {
+          h.notificationOccurred(type);
+        } else if (type === 'selection') {
+          h.selectionChanged();
+        } else {
+          h.impactOccurred(type); // 'light', 'medium', 'heavy', 'rigid', 'soft'
+        }
       }
     } catch (e) {}
-    return localStorage.getItem('iqarena_player') || '';
   },
 
   // 1. Сайтқа кірген кезде
@@ -130,17 +182,22 @@ const Tracker = {
     const dev = this.getDeviceInfo();
     const loc = await this.getLocationInfo();
     const time = this.getFormattedTime();
-    const player = this.getCurrentPlayer() || 'Аты әлі жазылмаған';
+    const playerBlock = this.formatPlayerIdentity();
+    const isTg = this.isTelegramApp();
 
     let locStr = loc.ip;
     if (loc.city || loc.country) {
       locStr += ` (${[loc.city, loc.country].filter(Boolean).join(', ')})`;
     }
 
+    const title = isTg
+      ? '🟢 <b>[IQ Алаңы] Жаңа адам кірді (Telegram Mini App)!</b>'
+      : '🟢 <b>[IQ Алаңы] Жаңа адам сайтқа кірді (Браузер)!</b>';
+
     const msg = [
-      '🟢 <b>[IQ Алаңы] Жаңа адам сайтқа кірді!</b>',
+      title,
       '',
-      `👤 <b>Ойыншы:</b> ${player}`,
+      `👤 <b>Ойыншы:</b>\n${playerBlock}`,
       `📱 <b>Құрылғы:</b> ${dev.device}`,
       `🌐 <b>Браузер:</b> ${dev.browser} (${dev.screen})`,
       `📍 <b>IP / Орны:</b> ${locStr}`,
@@ -156,12 +213,13 @@ const Tracker = {
     if (!name) return;
     const time = this.getFormattedTime();
     const dev = this.getDeviceInfo();
-    const modeName = mode === 'account' ? '☁️ Аккаунт' : '👤 Қонақ режимі';
+    const modeName = mode === 'account' ? '☁️ Аккаунт' : (this.isTelegramApp() ? '📱 Telegram Mini App' : '👤 Қонақ режимі');
+    const playerBlock = this.formatPlayerIdentity(name);
 
     const msg = [
-      '👤 <b>[IQ Алаңы] Ойыншы кірді/атын жазды</b>',
+      '👤 <b>[IQ Алаңы] Ойыншы тіркелді/кірді:</b>',
       '',
-      `✨ <b>Аты-жөні:</b> ${name}`,
+      playerBlock,
       `🔑 <b>Режим:</b> ${modeName}`,
       `📱 <b>Құрылғы:</b> ${dev.device}`,
       `🕒 <b>Уақыты:</b> ${time}`
@@ -173,20 +231,24 @@ const Tracker = {
   // 3. Ойын аяқталғанда / нәтиже шыққанда
   async logGameResult({ gameId, level, score, maxLevel, passed, extra }) {
     const gameName = GAME_NAMES[gameId] || gameId;
-    const player = this.getCurrentPlayer() || 'Белгісіз ойыншы';
+    const playerBlock = this.formatPlayerIdentity();
     const time = this.getFormattedTime();
 
     let status = '';
     if (passed === true) {
       status = '✅ Деңгейден өтті!';
+      this.haptic('success');
     } else if (passed === false) {
       status = '❌ Өтпеді (Қайталау)';
+      this.haptic('error');
+    } else {
+      this.haptic('medium');
     }
 
     const lines = [
       '🎯 <b>[IQ Алаңы] Ойын нәтижесі!</b>',
       '',
-      `👤 <b>Ойыншы:</b> ${player}`,
+      `👤 <b>Ойыншы:</b>\n${playerBlock}`,
       `🎮 <b>Ойын:</b> ${gameName}`,
       level !== undefined ? `⭐ <b>Деңгей:</b> ${level}${maxLevel ? ` / ${maxLevel}` : ''}` : '',
       status ? `📊 <b>Күйі:</b> ${status}` : '',
@@ -201,13 +263,14 @@ const Tracker = {
   // 4. Жаңа рекорд / үздік деңгей орнатылғанда
   async logNewBest(gameId, level) {
     const gameName = GAME_NAMES[gameId] || gameId;
-    const player = this.getCurrentPlayer() || 'Ойыншы';
+    const playerBlock = this.formatPlayerIdentity();
     const time = this.getFormattedTime();
+    this.haptic('success');
 
     const msg = [
       '🏆 <b>[IQ Алаңы] ЖАҢА РЕКОРД!</b>',
       '',
-      `👤 <b>Ойыншы:</b> ${player}`,
+      `👤 <b>Ойыншы:</b>\n${playerBlock}`,
       `🎮 <b>Ойын:</b> ${gameName}`,
       `🚀 <b>Жаңа үздік деңгей:</b> ${level}`,
       `🕒 <b>Уақыты:</b> ${time}`
@@ -218,13 +281,14 @@ const Tracker = {
 
   // 5. Жетістік ашылғанда
   async logAchievement(ach) {
-    const player = this.getCurrentPlayer() || 'Ойыншы';
+    const playerBlock = this.formatPlayerIdentity();
     const time = this.getFormattedTime();
+    this.haptic('success');
 
     const msg = [
       '🏅 <b>[IQ Алаңы] Жаңа жетістік ашылды!</b>',
       '',
-      `👤 <b>Ойыншы:</b> ${player}`,
+      `👤 <b>Ойыншы:</b>\n${playerBlock}`,
       `🎖️ <b>Жетістік:</b> ${ach.icon || '⭐'} ${ach.title || ''}`,
       `📝 <b>Сипаттама:</b> ${ach.desc || ''}`,
       `🕒 <b>Уақыты:</b> ${time}`

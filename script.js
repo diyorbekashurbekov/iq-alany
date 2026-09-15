@@ -51,6 +51,17 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+  // Telegram Native Back Button
+  if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.BackButton) {
+    const bb = window.Telegram.WebApp.BackButton;
+    if (id === 'screen-hub' || id === 'screen-login') {
+      bb.hide();
+    } else {
+      bb.show();
+      bb.onClick(goHub);
+    }
+  }
 }
 
 const GAMES = [
@@ -502,6 +513,29 @@ function setupAuthUI() {
 
 document.addEventListener('DOMContentLoaded', () => {
   setupAuthUI();
+
+  // Telegram Mini App баптаулары
+  if (window.Telegram && window.Telegram.WebApp) {
+    const tg = window.Telegram.WebApp;
+    try {
+      tg.ready();
+      tg.expand();
+      if (typeof tg.enableClosingConfirmation === 'function') {
+        tg.enableClosingConfirmation();
+      }
+      const tgUser = tg.initDataUnsafe?.user;
+      if (tgUser) {
+        const tgFullName = [tgUser.first_name, tgUser.last_name].filter(Boolean).join(' ') || tgUser.username;
+        if (tgFullName) {
+          Store.setPlayer(tgFullName);
+          const nameInput = document.getElementById('player-name');
+          if (nameInput) nameInput.value = tgFullName;
+        }
+      }
+    } catch (e) {
+      console.warn('Telegram WebApp инициализация қатесі:', e);
+    }
+  }
 
   if (window.Tracker) {
     window.Tracker.logVisit();
