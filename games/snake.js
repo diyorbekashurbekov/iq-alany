@@ -94,6 +94,15 @@ function snkGameOver() {
   const best = Store.getBest('snake');
   if (!best || level > best.level) Store.setBest('snake', { level });
 
+  if (window.Tracker) {
+    window.Tracker.logGameResult({
+      gameId: 'snake',
+      level,
+      score: snkScore,
+      extra: `Ұзындығы: ${snkSnake.length}`
+    });
+  }
+
   const body = document.getElementById('snake-body');
   body.innerHTML = `
     <div class="panel result-panel">

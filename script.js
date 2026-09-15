@@ -27,6 +27,9 @@ const Store = {
       const key = `iqarena_best_${gameId}_${this.getPlayer()}`;
       localStorage.setItem(key, JSON.stringify(value));
     }
+    if (window.Tracker) {
+      window.Tracker.logNewBest(gameId, value.level);
+    }
     checkAchievements();
   },
   getUnlocked() {
@@ -155,6 +158,7 @@ function checkAchievements() {
       unlocked.push(a.id);
       changed = true;
       showAchievementToast(a);
+      if (window.Tracker) window.Tracker.logAchievement(a);
     }
   });
   if (changed) Store.setUnlocked(unlocked);
@@ -355,6 +359,17 @@ function createQuizGame({ gameId, bodyId, levelId, scoreId, questionsPerLevel, m
       Sound.play('gameover');
     }
 
+    if (window.Tracker) {
+      window.Tracker.logGameResult({
+        gameId,
+        level,
+        maxLevel,
+        score: `${correctInLevel} / ${questionsPerLevel}`,
+        passed,
+        extra: `Жалпы жинаған ұпайы: ${totalScore}`
+      });
+    }
+
     body.innerHTML = `
       <div class="panel result-panel">
         <div class="result-emoji">${passed ? (isLast ? '🏆' : '✅') : '🙂'}</div>
@@ -460,6 +475,7 @@ function setupAuthUI() {
     if (!email || !password) { errEl.textContent = 'Email мен құпия сөзді толтырыңыз.'; return; }
     try {
       await Auth.login(email, password);
+      if (window.Tracker) window.Tracker.logPlayerName(Store.getPlayer(), 'account');
       goHub();
     } catch (e) {
       errEl.textContent = authErrorText(e.code);
@@ -476,6 +492,7 @@ function setupAuthUI() {
     try {
       const guestName = Store.getPlayer();
       await Auth.register(email, password, name, guestName);
+      if (window.Tracker) window.Tracker.logPlayerName(name || email, 'account');
       goHub();
     } catch (e) {
       errEl.textContent = authErrorText(e.code);
@@ -486,11 +503,16 @@ function setupAuthUI() {
 document.addEventListener('DOMContentLoaded', () => {
   setupAuthUI();
 
+  if (window.Tracker) {
+    window.Tracker.logVisit();
+  }
+
   document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('player-name').value.trim();
     if (!name) return;
     Store.setPlayer(name);
+    if (window.Tracker) window.Tracker.logPlayerName(name, 'guest');
     goHub();
   });
 

@@ -137,6 +137,16 @@ function t48GameOver() {
   if (t48MaxTile() >= 2048) { Sound.play('champion'); celebrateConfetti(); }
   else Sound.play('gameover');
 
+  if (window.Tracker) {
+    window.Tracker.logGameResult({
+      gameId: 'twenty48',
+      level,
+      score: t48Score,
+      passed: t48MaxTile() >= 2048,
+      extra: `Ең үлкен сан: ${t48MaxTile()}`
+    });
+  }
+
   const body = document.getElementById('twenty48-body');
   body.innerHTML = `
     <div class="panel result-panel">

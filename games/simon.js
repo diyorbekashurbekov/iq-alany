@@ -100,6 +100,16 @@ function simonGameOver() {
     Sound.play('gameover');
   }
 
+  if (window.Tracker) {
+    window.Tracker.logGameResult({
+      gameId: 'simon',
+      level: reached,
+      score: reached,
+      passed: reached >= 10,
+      extra: `Жеткен ұзындық: ${reached}`
+    });
+  }
+
   const body = document.getElementById('simon-body');
   body.innerHTML = `
     <div class="panel result-panel">

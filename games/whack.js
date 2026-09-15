@@ -94,6 +94,17 @@ function whackEndRound() {
     Sound.play('gameover');
   }
 
+  if (window.Tracker) {
+    window.Tracker.logGameResult({
+      gameId: 'whack',
+      level: whackLevel,
+      maxLevel: WHACK_LEVELS.length,
+      score: `${whackScore} / ${config.target}`,
+      passed,
+      extra: `Ұпай: ${whackScore}`
+    });
+  }
+
   const body = document.getElementById('whack-body');
   body.innerHTML = `
     <div class="panel result-panel">

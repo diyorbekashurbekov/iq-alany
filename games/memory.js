@@ -99,6 +99,17 @@ function memoryFinishLevel() {
   if (isLast) { Sound.play('champion'); celebrateConfetti(); }
   else Sound.play('levelup');
 
+  if (window.Tracker) {
+    window.Tracker.logGameResult({
+      gameId: 'memory',
+      level,
+      maxLevel: MEMORY_LEVELS.length,
+      score: `${MemoryState.moves} қадам`,
+      passed: true,
+      extra: `Қадамдар саны: ${MemoryState.moves}`
+    });
+  }
+
   const body = document.getElementById('memory-body');
   body.innerHTML = `
     <div class="panel result-panel">
